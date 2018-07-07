@@ -1,74 +1,77 @@
 import React, {Component} from 'react';
-import {Button, Input} from 'semantic-ui-react'
+import {Form, Grid} from 'semantic-ui-react'
 
-import fire from '../api/fire';
-import robin from 'roundrobin';
-import {groupBy} from './Teams/Teams';
+import Game from './Game';
 
-const generateRound = (teams) => {
-  const divisions = Object.keys(teams);
-  const schedules = divisions.reduce( (scheduled, divisionName) => {
-    scheduled[divisionName] = robin(4, teams[divisionName])
-    return scheduled;
-  }, {})
-  const schedule = [];
-  let gamesAdded = false, i=0;
-  do {
-    gamesAdded = false;
-    Object.values(schedules).forEach(round => {
-      if (round[i]) {
-        gamesAdded = true;
-        schedule.push(...round[i]);
+const getRounds = (numFields, games) => {
+  const fields = new Array(Math.ceil(games.length / numFields));
+  if (games.length > 0) {
+    games.forEach((game, index) => {
+      const round = Math.floor(index / numFields);
+      if (fields[round]) {
+        fields[round].push(game);
+      } else {
+        fields[round] = [game];
       }
     })
-    i++;
-  } while (gamesAdded);
-  return schedule;
+  }
+  return fields;
 }
 
 export default class Schedule extends Component {
   state = {
-    teams: [],
-    fields: [[],[],[]], 
+    games: [],
+    scores: [],
     numFields: 3
   };
 
-  componentWillMount(){
-    /* Create reference to messages in Firebase Database */
-    let teamsRef = fire.database().ref('teams').orderByKey().limitToLast(100);
-    teamsRef.on('child_added', snapshot => {
-      let team = { ...snapshot.val(), id: snapshot.key };
-      this.setState(prev => ({teams: [...prev.teams, team] }));
-    })
-  }
-
-  _handleGenerate (teams) {
-    const schedule = generateRound(teams),
-      fields = [[],[],[]]
-    schedule.forEach((match, index) => fields[index % this.state.numFields].push(match));
-
-    this.setState({fields})
+  _handleSelect (game) {
+    this.setState({current: {
+      ...game,
+      score: [0,0]
+    }})
   }
 
   render () {
-    const teams = groupBy(this.state.teams, 'division'),
-      {fields = [[],[],[]], numFields} = this.state;
+    const {numFields} = this.state,
+      {games} = this.props;
+
+    let rounds = [[]];
+    if (games) {
+      rounds = getRounds(numFields, Object.values(games));
+    } 
+
     
     return <div>
-      <Input type="number" value={numFields} onChange={(e, {value}) => this.setState({numFields: value})}/>
-      <Button onClick={this._handleGenerate.bind(this, teams)}>Generate Schedule</Button>
-      <div style={{display: 'flex'}}>
+      <h2>Schedule</h2>
+      <Form>
+        <Form.Input inline type="number" value={numFields} label="Number of Fields"
+          onChange={(e, {value}) => this.setState({numFields: value})}
+        />
+      </Form>
+      <Grid columns={numFields+1}>
+        <Grid.Row>
+          <Grid.Column width={1}>Time</Grid.Column>
         {
-          fields.map((field, index) => 
-            <div>
-              <h3>Field {index+1}</h3>
-              {field.map(match =>
-                <div key={match[0].id+match[1].id}>{match[0].name} vs {match[1].name}</div>
-              )}
-            </div>
+          rounds.length > 0 ? rounds[0].map((field, index) => 
+            <Grid.Column key={index} width={3}>Field {index+1}</Grid.Column>
+          ) : ''
+        }
+        </Grid.Row>
+        {
+          rounds.map((round, index) =>
+            <Grid.Row key={index}>
+              <Grid.Column width={1}>{800 + index%3*20 + Math.floor(index/3)*100}</Grid.Column>
+                {round.map(game =>
+                  <Grid.Column key={game.id} width={3}>
+                    <Game key={game.id} game={game} onUpdate={this._handleScoreUpdate}
+                    />
+                  </Grid.Column>
+                )}
+            </Grid.Row>
           )
         }
-      </div>
+      </Grid>
     </div>
   }
 }

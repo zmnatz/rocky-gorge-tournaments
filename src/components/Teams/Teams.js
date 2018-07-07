@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {Form} from 'semantic-ui-react'
+import {Form, Grid} from 'semantic-ui-react'
+import Team from '../Team'
 
-import fire from '../../api/fire';
 
 export const groupBy = function(xs, key) {
   return xs.reduce(function(rv, x) {
@@ -21,15 +21,6 @@ export default class Teams extends Component {
     newTeam: DEFAULTS
   };
 
-  componentWillMount(){
-    /* Create reference to messages in Firebase Database */
-    let teamsRef = fire.database().ref('teams').orderByKey().limitToLast(100);
-    teamsRef.on('child_added', snapshot => {
-      let team = { ...snapshot.val(), id: snapshot.key };
-      this.setState(prev => ({teams: [...prev.teams, team] }));
-    })
-  }
-
   _handleChange (e, {name, value}) {
     this.setState(prev => ({
       newTeam: {
@@ -41,21 +32,21 @@ export default class Teams extends Component {
 
   _handleSubmit (e) {
     e.preventDefault();
-    fire.database().ref('teams').push({
-      ...this.state.newTeam,
-      division: this.props.division
-    });
-    this.setState({newTeam: DEFAULTS})
+    this.props.onSubmit({...this.state.newTeam, division: this.props.division})
+    this.setState(prevState => ({
+      newTeam: {
+        ...DEFAULTS, 
+        pool: prevState.newTeam.pool
+      }
+    }));
   }
-
+  
+  
   render () {
-    const {division} = this.props,
-      {teams=[], newTeam} = this.state;
+    const {division, teams} = this.props,
+      {newTeam} = this.state;
 
-    console.log('entries', Object.entries(groupBy(teams, 'pool')))
-
-
-    return <div>
+    return <div style={{flex: 1}}>
         <h3>{division}</h3>
         <Form onSubmit={this._handleSubmit.bind(this)}>
           <Form.Input label="Team" name="name" value={newTeam.name} onChange={this._handleChange.bind(this)}/>
@@ -64,11 +55,23 @@ export default class Teams extends Component {
         </Form>
         {Object.entries(groupBy(teams, 'pool'))
           .map(entry => {
-            return <div>
+            return <div key={entry[0]}>
               <h4>{entry[0]}</h4>
-              {entry[1].filter(team => team.division === division)
-                .map(team => <div key={team.id}>{team.name}</div>)
-              }
+              <Grid divided centered>
+                <Grid.Row>
+                  <Grid.Column width={4}>Team</Grid.Column>
+                  <Grid.Column>W</Grid.Column>
+                  <Grid.Column>L</Grid.Column>
+                  <Grid.Column>T</Grid.Column>
+                  <Grid.Column>PF</Grid.Column>
+                  <Grid.Column>PA</Grid.Column>
+                </Grid.Row>
+                {entry[1].filter(team => team.division === division)
+                  .map(team =>
+                    <Team key={team.id} team={team}/>
+                  )
+                }
+              </Grid>
             </div>
           })
         }
