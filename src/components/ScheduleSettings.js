@@ -58,7 +58,7 @@ export default class ScheduleSettings extends Component {
           onFocus={handleFocus}
           onChange={this._scheduleChange.bind(this)}
         />
-        <Form.Button type="submit">Save Schedule</Form.Button>
+        <Form.Button type="submit">Save Settings</Form.Button>
       </Form.Group>
     </Form>
   }

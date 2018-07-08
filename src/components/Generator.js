@@ -5,6 +5,7 @@ import robin from 'roundrobin';
 import {Button} from 'semantic-ui-react'
 
 import {groupBy} from '../utils';
+import ScheduleSettings from './ScheduleSettings';
 
 const checkRound = (i, schedule, round) => {
   if (round[i]) {
@@ -35,28 +36,48 @@ const generateRound = (teams) => {
 }
 
 export default class Generator extends Component {
+  determineTime(round) {
+    const {settings: {startTime, increment, incrementMod}} = this.props;
+    return startTime + round%incrementMod*increment + Math.floor(round/incrementMod)*100
+  }
+
+  setLocation = (numFields, games) => 
+    games.map((game, index) => ({
+      ...game, 
+      field: index % numFields,
+      time: this.determineTime(Math.floor(index / numFields))
+    }))
+
   _handleGenerate (teams) {
-    fire.database().ref('games').remove()
-    .then(() =>
-    generateRound(teams).forEach((match, index) => {
-          fire.database().ref('games').push({
-            away: match[0],
-            home: match[1],
-            division: match[0].division,
-            score: {
-              home: 0,
-              away: 0
-            },
-            complete: false
-          })
+    const games = generateRound(teams),
+      scheduledGames = this.setLocation(this.props.settings.numFields, games);
+
+    fire.database().ref('games').remove().then(() => {
+      for (const game of scheduledGames) {
+        console.log(game);
+        fire.database().ref('games').push({
+          ...game,
+          away: game[0],
+          home: game[1],
+          division: game[0].division,
+          score: {
+            home: 0,
+            away: 0
+          },
+          complete: false
         })
-      )
-    }
+      }
+    })
+  }
+    
     
   render () {
     const teams = groupBy(this.props.teams, 'division');
-    return <Button type="primary" onClick={this._handleGenerate.bind(this, teams)}>
-      Generate Schedule
-    </Button>
+    return <div style={{display: 'flex'}}>
+      <ScheduleSettings style={{flex: 1}}/>
+      <Button type="primary" onClick={this._handleGenerate.bind(this, teams)}>
+        Generate
+      </Button>
+    </div>
   }
 }

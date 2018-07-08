@@ -13,7 +13,7 @@ export default ({teams, games, settings}) => <Segment>
     {
       menuItem: 'Schedule',
       render: () => 
-        <Schedule games={games} settings={settings} editable/>
+        <Schedule games={games} teams={teams} settings={settings} editable/>
     },
     ...DIVISIONS.map(division => ({
       menuItem: division,

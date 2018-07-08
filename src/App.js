@@ -7,6 +7,7 @@ import {SCORE_DEFAULTS, determineOutcomes, reverseOutcome} from './utils'
 import Admin from './components/Admin';
 import View from './components/View';
 
+
 class App extends Component {
   state = {
     teams: [],
@@ -90,7 +91,8 @@ class App extends Component {
   }
 
   render() {
-    const {games, settings} = this.state,
+    const {settings} = this.state,
+      games = Object.values(this.state.games),
       teams = Object.values(this.state.teams).filter(team => team);
 
     return <Switch>
