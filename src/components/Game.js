@@ -15,17 +15,21 @@ export default class Game extends Component {
       complete: false,
       score: {
         ...game.score,
-        [team]: value.length > 0 ? parseInt(value, 10) : 0
+        [team]: value
       }
     })
   }
 
   _handleScoreComplete () {
-    const {game} = this.props;
+    const {game, game: {score: {home, away}}} = this.props;
     fire.database().ref(`games/${game.id}`).set({
       ...game,
       inProgress: false,
-      complete: true
+      complete: true,
+      score: {
+        home: home === '' ? 0 : parseInt(home, 10),
+        away: away === '' ? 0 : parseInt(away, 10)
+      }
     });
   }
 

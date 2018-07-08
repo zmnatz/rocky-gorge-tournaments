@@ -4,7 +4,7 @@ import {Label, List} from 'semantic-ui-react'
 const Score = ({score}) => 
   <List.Icon>
     <Label size='large' style={{width: 40}}>
-      {score}
+      {score || 0}
     </Label>
   </List.Icon>
 
