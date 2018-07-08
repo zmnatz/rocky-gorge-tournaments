@@ -54,7 +54,6 @@ export default class ScheduleSettings extends Component {
           onChange={this._scheduleChange.bind(this)}
         />
         <Form.Input inline type="number" name="startTime" value={startTime} label="Start Time"
-          step={30}
           onFocus={handleFocus}
           onChange={this._scheduleChange.bind(this)}
         />
