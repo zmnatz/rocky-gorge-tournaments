@@ -4,7 +4,7 @@ import fire from '../api/fire';
 import robin from 'roundrobin';
 import {Button} from 'semantic-ui-react'
 
-import {groupBy} from './Teams/Teams';
+import {groupBy} from '../utils';
 
 const checkRound = (i, schedule, round) => {
   if (round[i]) {
@@ -15,7 +15,13 @@ const checkRound = (i, schedule, round) => {
 const generateRound = (teams) => {
   const divisions = Object.keys(teams);
   const schedules = divisions.reduce( (scheduled, divisionName) => {
-    scheduled[divisionName] = robin(4, teams[divisionName])
+    const pools = groupBy(teams[divisionName], 'pool');
+    for (let pool of Object.entries(pools)) {
+      const poolName = pool[0],
+        poolTeams = pool[1];
+      scheduled[divisionName + poolName] = robin(poolTeams.length, poolTeams);
+    }
+    // scheduled[divisionName] = robin(4, teams[divisionName])
     return scheduled;
   }, {})
   const schedule = [];
@@ -49,7 +55,7 @@ export default class Generator extends Component {
     
   render () {
     const teams = groupBy(this.props.teams, 'division');
-    return <Button onClick={this._handleGenerate.bind(this, teams)}>
+    return <Button type="primary" onClick={this._handleGenerate.bind(this, teams)}>
       Generate Schedule
     </Button>
   }

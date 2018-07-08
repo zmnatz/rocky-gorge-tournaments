@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Grid} from 'semantic-ui-react'
+import {Card, Segment} from 'semantic-ui-react'
 
 import Game from './Game';
 
@@ -20,58 +20,41 @@ const getRounds = (numFields, games) => {
 
 export default class Schedule extends Component {
   state = {
-    games: [],
-    scores: [],
-    numFields: 3
+    games: []
   };
 
-  _handleSelect (game) {
-    this.setState({current: {
-      ...game,
-      score: [0,0]
-    }})
+  determineTime(round) {
+    const {settings: {startTime, increment, incrementMod}} = this.props;
+    return startTime + round%incrementMod*increment + Math.floor(round/incrementMod)*100
   }
 
   render () {
-    const {numFields} = this.state,
-      {games} = this.props;
+    const {games, readOnly, settings: {numFields}, editable} = this.props;
 
     let rounds = [[]];
     if (games) {
       rounds = getRounds(numFields, Object.values(games));
-    } 
-
-    
-    return <div>
-      <h2>Schedule</h2>
-      <Form>
-        <Form.Input inline type="number" value={numFields} label="Number of Fields"
-          onChange={(e, {value}) => this.setState({numFields: value})}
-        />
-      </Form>
-      <Grid columns={numFields+1}>
-        <Grid.Row>
-          <Grid.Column width={1}>Time</Grid.Column>
-        {
-          rounds.length > 0 ? rounds[0].map((field, index) => 
-            <Grid.Column key={index} width={3}>Field {index+1}</Grid.Column>
-          ) : ''
-        }
-        </Grid.Row>
-        {
-          rounds.map((round, index) =>
-            <Grid.Row key={index}>
-              <Grid.Column width={1}>{800 + index%3*20 + Math.floor(index/3)*100}</Grid.Column>
-                {round.map(game =>
-                  <Grid.Column key={game.id} width={3}>
-                    <Game key={game.id} game={game} onUpdate={this._handleScoreUpdate}
-                    />
-                  </Grid.Column>
-                )}
-            </Grid.Row>
-          )
-        }
-      </Grid>
-    </div>
+    }     
+    return <Segment.Group>
+      {/* <ScheduleSettings/> */}
+      {
+        rounds.map((round, index) =>
+          <Segment key={index}>
+            <h3>{this.determineTime(index)}</h3>
+            <Card.Group key={index}>
+              {round.map((game, field) =>
+                // <Card key={game.id}>foo</Card>
+                <Game key={game.id} 
+                  readOnly={readOnly} 
+                  game={game} 
+                  field={field} 
+                  editable={editable}
+                />
+              )}
+            </Card.Group>
+          </Segment>
+        )
+      }
+    </Segment.Group>
   }
 }

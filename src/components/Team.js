@@ -1,9 +1,20 @@
 import React from 'react';
-import {Grid} from 'semantic-ui-react';
+import {Grid, Button} from 'semantic-ui-react';
+import fire from '../api/fire';
 
-const Team = ({team}) => 
+const onDelete = (team) => {
+  fire.database().ref(`teams/${team.id}`).remove();
+}
+
+const Team = ({team, editable}) => 
   <Grid.Row>
-    <Grid.Column width={4}>{team.name}</Grid.Column>
+    <Grid.Column width={6}>
+      {team.name}
+      {editable ? <Button icon="delete" color='red' float="right" 
+        onClick={onDelete.bind(this, team)}/> 
+        : ''
+      }
+    </Grid.Column>
     <Grid.Column>{team.wins}</Grid.Column>
     <Grid.Column>{team.losses}</Grid.Column>
     <Grid.Column>{team.ties}</Grid.Column>

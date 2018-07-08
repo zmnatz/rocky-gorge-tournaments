@@ -7,7 +7,7 @@ import { HashRouter } from 'react-router-dom'
 import registerServiceWorker from './registerServiceWorker';
 
 const appComponent = <HashRouter> 
-  <App />
+  <App/>
 </HashRouter>
 
 ReactDOM.render(appComponent, document.getElementById('root'));
