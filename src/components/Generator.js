@@ -37,8 +37,17 @@ const generateRound = (teams) => {
 
 export default class Generator extends Component {
   determineTime(round) {
-    const {settings: {startTime, increment, incrementMod}} = this.props;
-    return startTime + round%incrementMod*increment + Math.floor(round/incrementMod)*100
+    const {settings: {startTime, increment}} = this.props;
+    let numMinutes = round * increment,
+      hours = Math.floor(numMinutes / 60),
+      totalMinutes = startTime % 100 + numMinutes % 60;
+    
+    if (totalMinutes > 59) {
+      hours += Math.floor(totalMinutes / 60);
+      totalMinutes -= Math.floor(totalMinutes / 60) * 60;
+    }
+      
+    return startTime + hours * 100 + (startTime % 100 + totalMinutes)
   }
 
   setLocation = (numFields, games) => 

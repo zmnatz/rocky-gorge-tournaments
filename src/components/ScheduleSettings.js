@@ -6,7 +6,6 @@ import {handleFocus} from '../utils'
 export const DEFAULT_SCHEDULE = {
   startTime: 900,
   increment: 20,
-  incrementMod: 60/20,
   numFields: 3
 }
 
@@ -33,8 +32,7 @@ export default class ScheduleSettings extends Component {
   _handleSubmit () {
     fire.database().ref('scheduleSettings').set({
       ...DEFAULT_SCHEDULE,
-      ...this.state.settings,
-      incrementMod: Math.ceil(60/this.state.settings.increment)
+      ...this.state.settings
     });
   }
 
