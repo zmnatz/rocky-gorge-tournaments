@@ -31,7 +31,7 @@ const generateRound = (teams) => {
     gameCount = schedule.length;
     Object.values(schedules).forEach(checkRound.bind(this, i, schedule))
     i++;
-  } while (schedule.length > gameCount);
+  } while (schedule.length > gameCount && i<4);
   return schedule;
 }
 
