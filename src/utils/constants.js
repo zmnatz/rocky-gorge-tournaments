@@ -1,1 +1,1 @@
-export const DIVISIONS = ['Mens', 'Womens', 'Youth'];
+export const DIVISIONS = ['Mens', 'Womens'];
