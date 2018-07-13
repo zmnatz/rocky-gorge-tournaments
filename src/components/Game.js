@@ -46,7 +46,7 @@ export default class Game extends Component {
 
     return <Card>
       <Card.Content>
-        <Card.Header>Field {field+1} - {game.division} Division</Card.Header>
+        <Card.Header>Field {field+1} - {game.division}</Card.Header>
         <Card.Description>
           {game.complete || readOnly ?
             <Score game={game} readOnly/>

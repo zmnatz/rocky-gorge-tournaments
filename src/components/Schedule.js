@@ -31,7 +31,7 @@ const TeamMenu = ({teams, visible, onSelect}) => {
       All Teams
     </Menu.Item>
     {teams.map(team => 
-      <Menu.Item key={team} as='a' content={`${team.name} - ${team.division}`}
+      <Menu.Item key={team.name + team.division} as='a' content={`${team.name} - ${team.division}`}
           onClick={onSelect.bind(this, team.id)} />
     )}
   </Sidebar>
