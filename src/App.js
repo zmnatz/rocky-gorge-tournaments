@@ -104,6 +104,9 @@ class App extends Component {
       <Route path="/admin" exact render={() =>
         <Admin teams={teams} games={games} settings={settings} />
       } />
+      <Route path="/z-mode" exact render={() =>
+        <Admin teams={teams} games={games} settings={settings} masterMode />
+      } />
       <Route path="/" exact render={() =>
         <View teams={teams} games={games} settings={settings} />
       } />

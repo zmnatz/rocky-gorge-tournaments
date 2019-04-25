@@ -31,7 +31,7 @@ const TeamMenu = ({ teams, visible, onSelect }) => {
       All Teams
     </Menu.Item>
     {teams.map(team =>
-      <Menu.Item key={team.name + team.division} as='a' content={`${team.name} - ${team.division}`}
+      <Menu.Item key={team.name} as='a' content={team.name}
         onClick={onSelect.bind(this, team.id)} />
     )}
   </Sidebar>
@@ -49,7 +49,7 @@ export default class Schedule extends Component {
     this.setState({ selected: team })
 
   render() {
-    const { games, readOnly, teams, editable, settings } = this.props,
+    const { games, readOnly, teams, editable, masterMode } = this.props,
       { selected } = this.state,
       filteredGames = games.filter(game =>
         game != null && (
@@ -75,10 +75,9 @@ export default class Schedule extends Component {
           <Segment.Group style={{ minHeight: 300 }}>
             <Card.Group>
               {filteredGames.map((game) =>
-                // <Card key={game.id}>foo</Card>
                 <Game key={game.id}
                   readOnly={readOnly}
-                  editMode={settings.editMode}
+                  editMode={masterMode}
                   game={game}
                   field={game.field}
                   editable={editable}

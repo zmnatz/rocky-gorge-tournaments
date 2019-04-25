@@ -6,8 +6,7 @@ import { handleFocus } from '../utils'
 export const DEFAULT_SCHEDULE = {
   startTime: 900,
   increment: 60,
-  numFields: 2,
-  editMode: false
+  numFields: 2
 }
 
 export default class ScheduleSettings extends Component {
@@ -17,7 +16,6 @@ export default class ScheduleSettings extends Component {
 
   componentWillMount() {
     fire.database().ref('settings').on('value', snapshot => {
-      console.log(snapshot.val())
       this.setState({ settings: snapshot.val() });
     })
   }
