@@ -1,14 +1,14 @@
-import React, {Component} from 'react'
-import {Form, Card} from 'semantic-ui-react'
+import React, { Component } from 'react'
+import { Form, Card } from 'semantic-ui-react'
 import fire from '../api/fire';
 
 import Score from './Score';
-import {handleFocus} from '../utils'
+import { handleFocus } from '../utils'
 
 export default class Game extends Component {
-  _handleScoreChange (team, e, {value}) {
+  _handleScoreChange(team, e, { value }) {
     e.preventDefault()
-    const {game} = this.props;
+    const { game } = this.props;
     fire.database().ref(`games/${game.id}`).set({
       ...game,
       inProgress: true,
@@ -20,8 +20,8 @@ export default class Game extends Component {
     })
   }
 
-  _handleScoreComplete () {
-    const {game, game: {score: {home, away}}} = this.props;
+  _handleScoreComplete() {
+    const { game, game: { score: { home, away } } } = this.props;
     fire.database().ref(`games/${game.id}`).set({
       ...game,
       inProgress: false,
@@ -33,7 +33,24 @@ export default class Game extends Component {
     });
   }
 
-  _fixScore (game) {
+  _handleTimeChange = (e, { value }) => {
+    const { game } = this.props;
+    fire.database().ref(`games/${game.id}`).set({
+      ...game,
+      time: value
+    })
+  }
+
+  _handleFieldChange = (e, { value }) => {
+    const { game } = this.props;
+
+    fire.database().ref(`games/${game.id}`).set({
+      ...game,
+      field: value - 1
+    })
+  }
+
+  _fixScore(game) {
     fire.database().ref(`games/${game.id}`).set({
       ...game,
       inProgress: true,
@@ -41,30 +58,51 @@ export default class Game extends Component {
     })
   }
 
-  render () {
-    const {game, readOnly, game: {score}, field, editable} = this.props;
+  _deleteGame = () => {
+    const { game } = this.props;
+    fire.database().ref(`games/${game.id}`).remove();
+  }
+
+  render() {
+    const { game, readOnly, game: { score }, field, editable, editMode } = this.props;
 
     return <Card>
       <Card.Content>
-        <Card.Header>Field {field+1} - {game.division}</Card.Header>
+        <Card.Header>Field {field + 1} - {game.time}</Card.Header>
         <Card.Description>
           {game.complete || readOnly ?
-            <Score game={game} readOnly/>
+            <Score game={game} readOnly />
             :
             <Form onSubmit={this._handleScoreComplete.bind(this, score)}>
-                <Form.Input fluid type="number" value={score.away}
-                  label={game.away.name}
-                  readOnly={game.complete}
-                  onChange={this._handleScoreChange.bind(this, 'away')}
+              {editMode && <React.Fragment>
+                <Form.Input type="number" value={game.time}
+                  label='Time'
+                  onChange={this._handleTimeChange}
                   onFocus={handleFocus}
-                  />
-                <Form.Input fluid type="number" value={score.home}
-                  label={game.home.name}
-                  readOnly={game.complete}
-                  onChange={this._handleScoreChange.bind(this, 'home')}
+                />
+                <Form.Input type="number" value={game.field + 1} label="Field"
+                  onChange={this._handleFieldChange}
                   onFocus={handleFocus}
-                  />
-              {game.inProgress ? 
+                />
+                <Form.Button basic color="red" onClick={this._deleteGame}>
+                  Delete Game
+                </Form.Button>
+              </React.Fragment>
+              }
+
+              <Form.Input fluid type="number" value={score.away}
+                label={game.away.name}
+                readOnly={game.complete}
+                onChange={this._handleScoreChange.bind(this, 'away')}
+                onFocus={handleFocus}
+              />
+              <Form.Input fluid type="number" value={score.home}
+                label={game.home.name}
+                readOnly={game.complete}
+                onChange={this._handleScoreChange.bind(this, 'home')}
+                onFocus={handleFocus}
+              />
+              {game.inProgress ?
                 <Form.Button basic color="green" floated="right" type="submit">Finalize</Form.Button>
                 : ''
               }
@@ -72,7 +110,7 @@ export default class Game extends Component {
           }
         </Card.Description>
       </Card.Content>
-      {game.complete && editable ? 
+      {game.complete && editable ?
         <Card.Content extra>
           <Form.Button basic color="red" floated="right" onClick={this._fixScore.bind(this, game)}>
             Fix Score

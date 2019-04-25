@@ -1,26 +1,28 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import fire from '../api/fire';
-import {Form} from 'semantic-ui-react'
-import {handleFocus} from '../utils'
+import { Form } from 'semantic-ui-react'
+import { handleFocus } from '../utils'
 
 export const DEFAULT_SCHEDULE = {
   startTime: 900,
-  increment: 20,
-  numFields: 3
+  increment: 60,
+  numFields: 2,
+  editMode: false
 }
 
 export default class ScheduleSettings extends Component {
   state = {
-    settings: {...DEFAULT_SCHEDULE}
+    settings: { ...DEFAULT_SCHEDULE }
   }
 
-  componentWillMount () {
-    fire.database().ref('scheduleSettings').on('value', snapshot => {
-      this.setState({settings: snapshot.val()});
+  componentWillMount() {
+    fire.database().ref('settings').on('value', snapshot => {
+      console.log(snapshot.val())
+      this.setState({ settings: snapshot.val() });
     })
   }
 
-  _scheduleChange = (e, {name, value}) => {
+  _scheduleChange = (e, { name, value }) => {
     this.setState(prev => ({
       settings: {
         ...prev.settings,
@@ -29,15 +31,15 @@ export default class ScheduleSettings extends Component {
     }));
   }
 
-  _handleSubmit () {
-    fire.database().ref('scheduleSettings').set({
+  _handleSubmit() {
+    fire.database().ref('settings').set({
       ...DEFAULT_SCHEDULE,
       ...this.state.settings
     });
   }
 
-  render () {
-    const {settings: {numFields, increment, startTime}} = this.state;
+  render() {
+    const { settings: { numFields, increment, startTime } } = this.state;
 
     return <Form onSubmit={this._handleSubmit.bind(this)}>
       <Form.Group>
@@ -47,7 +49,7 @@ export default class ScheduleSettings extends Component {
           onChange={this._scheduleChange.bind(this)}
         />
         <Form.Input inline name="increment" type="number" value={increment} label="Increment"
-          step={5} 
+          step={5}
           onFocus={handleFocus}
           onChange={this._scheduleChange.bind(this)}
         />
