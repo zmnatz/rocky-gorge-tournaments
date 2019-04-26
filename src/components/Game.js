@@ -74,7 +74,7 @@ export default class Game extends Component {
       .ref(`games/${game.id}`)
       .set({
         ...game,
-        ref: value
+        referee: value
       });
   };
 
