@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
-import { Switch, Route } from 'react-router';
-import fire from './api/fire';
-import 'semantic-ui-css/semantic.min.css';
-import { DEFAULT_SCHEDULE } from './components/ScheduleSettings';
-import { SCORE_DEFAULTS, determineOutcomes, reverseOutcome } from './utils'
-import Admin from './components/Admin';
-import View from './components/View';
-
+import React, { Component } from "react";
+import { Switch, Router } from "@reach/router";
+import fire from "./api/fire";
+import "semantic-ui-css/semantic.min.css";
+import { DEFAULT_SCHEDULE } from "./components/ScheduleSettings";
+import { SCORE_DEFAULTS, determineOutcomes, reverseOutcome } from "./utils";
+import Admin from "./components/Admin";
+import View from "./components/View";
 
 class App extends Component {
   state = {
@@ -14,11 +13,14 @@ class App extends Component {
     games: [],
     numFields: 2,
     settings: DEFAULT_SCHEDULE
-  }
+  };
   componentWillMount() {
     /* Create reference to messages in Firebase Database */
-    let teamsRef = fire.database().ref('teams').orderByKey();
-    teamsRef.on('child_added', snapshot => {
+    let teamsRef = fire
+      .database()
+      .ref("teams")
+      .orderByKey();
+    teamsRef.on("child_added", snapshot => {
       this.setState(prev => {
         const prevTeam = prev.teams[snapshot.key] || SCORE_DEFAULTS;
         let team = {
@@ -28,22 +30,25 @@ class App extends Component {
         };
         return {
           teams: { ...prev.teams, [team.id]: team }
-        }
+        };
       });
-    })
+    });
 
-    teamsRef.on('child_removed', snapshot =>
+    teamsRef.on("child_removed", snapshot =>
       this.setState(prev => ({
         teams: {
           ...prev.teams,
           [snapshot.key]: undefined
         }
       }))
-    )
+    );
 
-    let gamesRef = fire.database().ref('games').orderByKey();
+    let gamesRef = fire
+      .database()
+      .ref("games")
+      .orderByKey();
 
-    gamesRef.on('child_added', snapshot => {
+    gamesRef.on("child_added", snapshot => {
       const game = { ...snapshot.val(), id: snapshot.key };
 
       this.setState(prev => {
@@ -54,19 +59,19 @@ class App extends Component {
         return {
           teams,
           games: { ...prev.games, [game.id]: game }
-        }
+        };
       });
     });
-    gamesRef.on('child_removed', snapshot => {
+    gamesRef.on("child_removed", snapshot => {
       this.setState(prev => ({
         games: {
           ...prev.games,
           [snapshot.key]: undefined
         }
-      }))
-    })
+      }));
+    });
 
-    gamesRef.on('child_changed', snapshot => {
+    gamesRef.on("child_changed", snapshot => {
       const game = { ...snapshot.val() };
 
       this.setState(prev => {
@@ -79,20 +84,24 @@ class App extends Component {
         return {
           teams,
           games: { ...prev.games, [game.id]: game }
-        }
-      })
-    })
+        };
+      });
+    });
 
-    fire.database().ref('settings').on('value', snapshot =>
-      this.setState({ settings: snapshot.val() })
-    );
+    fire
+      .database()
+      .ref("settings")
+      .on("value", snapshot => this.setState({ settings: snapshot.val() }));
   }
 
   addTeam(newTeam) {
-    fire.database().ref('teams').push({
-      ...newTeam,
-      ...SCORE_DEFAULTS
-    });
+    fire
+      .database()
+      .ref("teams")
+      .push({
+        ...newTeam,
+        ...SCORE_DEFAULTS
+      });
   }
 
   render() {
@@ -100,17 +109,19 @@ class App extends Component {
       games = Object.values(this.state.games),
       teams = Object.values(this.state.teams).filter(team => team);
 
-    return <Switch>
-      <Route path="/admin" exact render={() =>
-        <Admin teams={teams} games={games} settings={settings} />
-      } />
-      <Route path="/z-mode" exact render={() =>
-        <Admin teams={teams} games={games} settings={settings} masterMode />
-      } />
-      <Route path="/" exact render={() =>
-        <View teams={teams} games={games} settings={settings} />
-      } />
-    </Switch>
+    return (
+      <Router>
+        <Admin path="admin" teams={teams} games={games} settings={settings} />
+        <Admin
+          path="z-mode"
+          teams={teams}
+          games={games}
+          settings={settings}
+          masterMode
+        />
+        <View default teams={teams} games={games} settings={settings} />
+      </Router>
+    );
   }
 }
 
