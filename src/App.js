@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Switch, Router } from "@reach/router";
+import { Router } from "@reach/router";
 import fire from "./api/fire";
 import "semantic-ui-css/semantic.min.css";
 import { DEFAULT_SCHEDULE } from "./components/ScheduleSettings";
@@ -111,7 +111,7 @@ class App extends Component {
 
     return (
       <Router>
-        <Admin path="admin" teams={teams} games={games} settings={settings} />
+        <Admin path="/admin" teams={teams} games={games} settings={settings} />
         <Admin
           path="z-mode"
           teams={teams}

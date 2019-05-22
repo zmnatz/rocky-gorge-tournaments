@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Card, Segment, Menu, Sidebar, Button } from 'semantic-ui-react'
 
 import Game from './Game';
-import { groupBy } from '../utils';
 
 const FilterMenu = ({ filter, onToggle, visible, onSelect }) =>
   <div>
@@ -20,7 +19,7 @@ const FilterMenu = ({ filter, onToggle, visible, onSelect }) =>
 
 const TeamMenu = ({ teams, visible, onSelect }) => {
   const sortedTeams = [...teams];
-  sortedTeams.sort((a, b) => a.name.localeCompare(b.names))
+  sortedTeams.sort(({name = ''}, {name:other=''}) => name.localeCompare(other))
   return <Sidebar as={Menu}
     visible={visible}
     animation='push'

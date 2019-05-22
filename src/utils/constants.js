@@ -1,1 +1,1 @@
-export const DIVISIONS = ['Standings'];
+export const DIVISIONS = ['Open', 'Social', 'U19'];
